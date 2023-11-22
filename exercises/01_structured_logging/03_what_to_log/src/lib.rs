@@ -11,7 +11,7 @@
 //! expected.
 //!
 //! The "easy" solution would be to log **everything**, a full-fidelity representation of the
-//! internal state of our applications.  
+//! internal state of our applications.
 //! Unfortunately, that's usually not feasible: the cost of producing and storing that information
 //! would be prohibitive.
 //!
@@ -21,7 +21,7 @@
 //!
 //! ## Unit of work
 //!
-//! A good rule of thumb is to view your application logic as a series of **units of work**.  
+//! A good rule of thumb is to view your application logic as a series of **units of work**.
 //! Each unit of work has a start and an end, and may in turn contain other sub-units of work.
 //!
 //! For each of those unit of work, we'll surely want to know:
@@ -34,7 +34,7 @@
 //! ### How fine-grained should the units of work be?
 //!
 //! If you take this approach to the extreme, you could model each function call as a unit of work.
-//! While that _may_ be useful in some scenarios, it's not a good default.  
+//! While that _may_ be useful in some scenarios, it's not a good default.
 //!
 //! You should consider a unit of work as a **meaningful** piece of work, one that may
 //! occupy a **significant** amount of time with respect to the duration of the over-arching
@@ -66,7 +66,31 @@ pub use logger::TestLogger;
 ///
 /// Refer to the test files for the expected output format.
 pub fn get_total(order_numbers: &[u64]) -> Result<u64, anyhow::Error> {
-    todo!()
+    log::info!("START - process total price");
+    let time = std::time::Instant::now();
+    let mut total_price = 0;
+    for number in order_numbers {
+        let price = get_order_details(*number);
+
+        match price {
+            Ok(val) => total_price += val.price,
+            Err(e) => {
+                log::error!(
+                    "END - process total price - ERROR - {}ms",
+                    time.elapsed().as_millis()
+                );
+
+                return Err(e);
+            }
+        }
+    }
+
+    log::info!(
+        "END - process total price - SUCCESS - {}ms",
+        time.elapsed().as_millis()
+    );
+
+    Ok(total_price)
 }
 
 pub struct OrderDetails {
@@ -76,10 +100,20 @@ pub struct OrderDetails {
 
 /// A dummy function to simulate what would normally be a database query.
 fn get_order_details(order_number: u64) -> Result<OrderDetails, anyhow::Error> {
+    log::info!("START - retrieve order");
+    let time = std::time::Instant::now();
     if order_number % 4 == 0 {
+        log::error!(
+            "END - retrieve order - ERROR - {}ms",
+            time.elapsed().as_millis()
+        );
         Err(anyhow::anyhow!("Failed to talk to the database"))
     } else {
-        let prices = vec![999, 1089, 1029];
+        let prices = [999, 1089, 1029];
+        log::info!(
+            "END - retrieve order - SUCCESS - {}ms",
+            time.elapsed().as_millis()
+        );
         Ok(OrderDetails {
             order_number,
             price: prices[order_number as usize % prices.len()],

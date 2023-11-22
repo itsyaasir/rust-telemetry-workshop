@@ -2,19 +2,19 @@
 //!
 //! The test assertions in the previous exercise have highlighted some of the `tracing` advantages
 //! we talked about—e.g. the hierarchical relationship between spans which our subscriber translated
-//! into a prefix-based structure for the log output.  
+//! into a prefix-based structure for the log output.
 //! We haven't fully replicated our `log` version though:
 //!
 //! 1. we're not capturing the outcome of each unit of work
 //! 2. we're not capturing the duration of each unit of work
 //!
 //! 2. is easily achieved by tweaking the configuration for our subscriber (`.with_timer(Uptime)`),
-//! so let's focus on 1., the outcome.  
+//! so let's focus on 1., the outcome.
 //! To pull it off in an idiomatic way, we need to learn about **span fields**.
 //!
 //! ## Span fields
 //!
-//! `tracing` allows us to attach key-value pairs to spans, which we refer to as **span fields**.  
+//! `tracing` allows us to attach key-value pairs to spans, which we refer to as **span fields**.
 //! The syntax looks like this:
 //!
 //! ```rust
@@ -33,7 +33,7 @@
 //! ## Fields must be defined upfront
 //!
 //! It's important to point out one key limitation of span fields: they must be known when the
-//! span is created.  
+//! span is created.
 //! In other words:
 //!
 //! ```rust
@@ -44,7 +44,7 @@
 //!
 //! won't work because the field `foo` is not defined when the span is created. No error will be
 //! raised, but the field will be ignored at runtime—that `record` call will have no effect
-//! whatsoever.  
+//! whatsoever.
 //!
 //! You may be wondering: what if I don't know the value of a field upfront?
 //! Good question! You can use the `tracing::field::Empty` as value for it when defining the span:
@@ -70,11 +70,15 @@ pub use subscriber::init_test_subscriber;
 ///
 /// Refer to the test files for the expected output format.
 pub fn get_total(order_numbers: &[u64]) -> Result<u64, anyhow::Error> {
+    let span = tracing::info_span!("process total price");
+    let _guard = span.enter();
+
     let mut total = 0;
     for order_number in order_numbers {
         let order_details = get_order_details(*order_number)?;
         total += order_details.price;
     }
+
     Ok(total)
 }
 
@@ -88,7 +92,7 @@ fn get_order_details(order_number: u64) -> Result<OrderDetails, anyhow::Error> {
     if order_number % 4 == 0 {
         Err(anyhow::anyhow!("Failed to talk to the database"))
     } else {
-        let prices = vec![999, 1089, 1029];
+        let prices = [999, 1089, 1029];
         Ok(OrderDetails {
             order_number,
             price: prices[order_number as usize % prices.len()],
