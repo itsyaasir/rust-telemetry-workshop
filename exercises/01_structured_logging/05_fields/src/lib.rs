@@ -70,15 +70,37 @@ pub use subscriber::init_test_subscriber;
 ///
 /// Refer to the test files for the expected output format.
 pub fn get_total(order_numbers: &[u64]) -> Result<u64, anyhow::Error> {
-    let span = tracing::info_span!("process total price");
+    let span = tracing::info_span!("process total price", outcome = tracing::field::Empty);
     let _guard = span.enter();
 
     let mut total = 0;
     for order_number in order_numbers {
-        let order_details = get_order_details(*order_number)?;
-        total += order_details.price;
+        let order_result = {
+            let order_span = tracing::info_span!("retrieve order", outcome = tracing::field::Empty);
+            let _order_guard = order_span.enter();
+
+            match get_order_details(*order_number) {
+                Ok(order_details) => {
+                    total += order_details.price;
+                    order_span.record("outcome", "success");
+                    Ok(())
+                }
+                Err(e) => {
+                    order_span.record("outcome", "failure");
+                    Err(e)
+                }
+            }
+        };
+
+        // check the result of the order
+        if let Err(e) = order_result {
+            span.record("outcome", "failure");
+            return Err(e);
+        }
     }
 
+    // All orders processed successfully
+    span.record("outcome", "success");
     Ok(total)
 }
 
