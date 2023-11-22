@@ -54,18 +54,20 @@ use std::sync::Mutex;
 /// Replace all the `todo!()` calls with the appropriate `log` macro invocation to get the
 /// tests to pass.
 pub fn entrypoint(args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
-    todo!();
+    log::info!("Retrieving first argument");
     let Some(a) = args.get(0) else {
         return Err("You haven't passed any argument to the program! Two is the minimum.".into());
     };
-    todo!();
+
+    log::info!("Retrieving second argument");
+
     let Some(b) = args.get(1) else {
         return Err(
             "You have only passed one argument to the program, you need another one!".into(),
         );
     };
 
-    todo!();
+    log::info!("{} {}", a, b);
 
     Ok(())
 }
@@ -96,7 +98,7 @@ where
         // We need to "install" the logger in order to start piping log records through its processing
         // logic.
         // Tip: use the `set_boxed_logger` function.
-        todo!();
+        log::set_boxed_logger(Box::new(logger))?;
 
         // We'll talk about levels in the next exercise, don't worry!
         log::set_max_level(LevelFilter::Trace);
@@ -120,7 +122,7 @@ where
         // This operation *could* fail—e.g. the sink is a file and the disk is full.
         if let Ok(mut sink) = self.0.lock() {
             // Tip: checkout `writeln!` in the standard library documentation.
-            todo!()
+            writeln!(&mut sink, "{}", record.args()).expect("couldn't write to the sink");
         }
     }
 
