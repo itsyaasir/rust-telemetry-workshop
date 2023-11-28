@@ -12,7 +12,7 @@
 //! ## `thread_local!`
 //!
 //! Rust's standard library exposes a `thread_local!` macro that allows you to define a variable
-//! that is local to the current thread.  
+//! that is local to the current thread.
 //! It's a bit like `static`, but it's not shared across threads.
 //!
 //! It comes with a caveat: if you move to a different thread, you won't be able to access the
@@ -20,7 +20,7 @@
 //!
 //! ## Spawning threads breaks the hierarchy
 //!
-//! `tracing` uses thread local state to keep track of the currently active span.  
+//! `tracing` uses thread local state to keep track of the currently active span.
 //! This has an interesting implication: if you spawn a thread to do some work, the spans
 //! created in that thread will **not** be linked to the spans created in the parent thread.
 //!
@@ -59,15 +59,23 @@ pub use subscriber::init_test_subscriber;
 /// Manipulate the spans we create in this function to match the output in the test below.
 pub fn do_something() -> std::thread::JoinHandle<()> {
     let spawner_span = tracing::info_span!("spawner");
+    let _guard = spawner_span.enter();
+
+    let spawner_span_clone = spawner_span.clone();
 
     let handle = std::thread::spawn(move || {
-        let spawned_span = tracing::info_span!(parent: parent, "spawned1");
+        let spawned_span = tracing::info_span!(parent: spawner_span_clone, "spawned1");
+        let _guard_spawned_span = spawned_span.enter();
     });
 
     handle.join().unwrap();
 
     std::thread::spawn(move || {
         let spawned_span = tracing::info_span!("spawned2");
+
+        let spawned_span2 = spawned_span.follows_from(spawner_span_clone);
+
+        let _guard_spawned_span = spawned_span2.enter();
     })
 }
 
