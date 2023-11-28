@@ -13,11 +13,12 @@ mod subscriber;
 
 pub use subscriber::init_test_subscriber;
 use tokio::task::yield_now;
-use tracing::Span;
+use tracing::{instrument, Span};
 
 /// # Exercise
 ///
 /// Use `#[tracing::instrument]` to re-implement the previous exercise.
+#[instrument(fields(caller_id = %id))]
 pub async fn do_something(id: u16) {
     // We give a chance to the runtime to pause this future
     // `.await` points is where the runtime gets back into the driving sit
@@ -47,7 +48,7 @@ mod tests {
             join_set.spawn(future);
         }
         // Let's wait for all tasks to complete.
-        while let Some(_) = join_set.join_next().await {}
+        while (join_set.join_next().await).is_some() {}
 
         // Check that the log output matches what we expect.
         let logging_output = logging_buffer.log_output().unwrap();

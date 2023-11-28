@@ -25,7 +25,7 @@ async fn success() {
     log_lines.end();
 
     // Ensure all spans are exported
-    tokio::task::spawn_blocking(|| shutdown_tracer_provider())
+    tokio::task::spawn_blocking(shutdown_tracer_provider)
         .await
         .unwrap();
 }

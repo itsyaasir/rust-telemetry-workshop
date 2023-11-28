@@ -12,7 +12,7 @@ async fn success() {
     assert_eq!(total, 3117);
 
     // Ensure all spans are exported
-    tokio::task::spawn_blocking(|| shutdown_tracer_provider())
+    tokio::task::spawn_blocking(shutdown_tracer_provider)
         .await
         .unwrap();
 }

@@ -10,7 +10,7 @@
 //! # `tracing-log`
 //!
 //! The `tracing-log` crate can act as such a bridge: it provides you with a `log`-compatible
-//! processor which redirects all `log` events to `tracing`.  
+//! processor which redirects all `log` events to `tracing`.
 //!
 //! Be mindful: if you're using `tracing_subscriber::fmt` as your `tracing` subscriber, it'll
 //! automatically install this bridge for you unless you explicitly disable the `tracing-log`
@@ -19,7 +19,7 @@
 //! # Exercise
 //!
 //! We have explicitly disabled the `tracing-log` feature in `tracing-subscriber` in our
-//! `Cargo.toml`.  
+//! `Cargo.toml`.
 //! Use the `tracing-log` crate to manually re-route logs emitted via `log` to `tracing`—the
 //! process you'll need to go through if you're a difference subscriber for `tracing`.
 mod subscriber;

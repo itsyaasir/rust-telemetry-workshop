@@ -55,7 +55,7 @@ fn get_order_details(order_number: u64) -> Result<OrderDetails, anyhow::Error> {
         Span::current().record("outcome", "failure");
         Err(anyhow::anyhow!("Failed to talk to the database"))
     } else {
-        let prices = vec![999, 1089, 1029];
+        let prices = [999, 1089, 1029];
         Span::current().record("outcome", "success");
         Ok(OrderDetails {
             order_number,

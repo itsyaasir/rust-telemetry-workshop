@@ -67,7 +67,7 @@ fn get_order_details(order_number: u64) -> Result<OrderDetails, anyhow::Error> {
     if order_number % 4 == 0 {
         Err(anyhow::anyhow!("Failed to talk to the database"))
     } else {
-        let prices = vec![999, 1089, 1029];
+        let prices = [999, 1089, 1029];
         Ok(OrderDetails {
             order_number,
             price: prices[order_number as usize % prices.len()],

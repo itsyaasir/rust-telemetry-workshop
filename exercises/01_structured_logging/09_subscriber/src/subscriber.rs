@@ -4,11 +4,11 @@ use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::trace::Tracer;
 use opentelemetry_sdk::{runtime, Resource};
 use tonic::metadata::MetadataMap;
-use tracing::Level;
+
 use tracing_subscriber::fmt::format::FmtSpan;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::{EnvFilter, Registry};
+use tracing_subscriber::Registry;
 
 pub fn init_test_subscriber() -> MockWriter {
     let tracer = init_tracer();

@@ -1,22 +1,22 @@
 //! # OpenTelemetry
 //!
-//! While looking at JSON data in a terminal might be a good start, it's not very practical.  
+//! While looking at JSON data in a terminal might be a good start, it's not very practical.
 //! Analyzing telemetry data using `jq` or scrolling through a terminal window is fairly tedious
-//! and error-prone.  
+//! and error-prone.
 //! In most real-world scenarios, we'll want to **export** our telemetry data to a centralized
 //! system that provides advanced analysis capabilities.
 //!
 //! In the old dark days, you would have had to pick a vendor and use their SDK to export your data
-//! to their systems in whatever bespoke format they devised.  
+//! to their systems in whatever bespoke format they devised.
 //! Thankfully, the industry has moved on and we now have a vendor-neutral format for exporting
-//! telemetry data: [OpenTelemetry](https://opentelemetry.io/).  
+//! telemetry data: [OpenTelemetry](https://opentelemetry.io/).
 //! It has gained a significant foothold and it's now supported by most observability vendors as
 //! a valid (if not preferred!) format for data ingestion.
 //!
 //! # Exercise
 //!
 //! We'll be using the [`tracing-opentelemetry`] crate to export our test telemetry data to
-//! [Honeycomb](https://www.honeycomb.io/), a hosted observability platform.  
+//! [Honeycomb](https://www.honeycomb.io/), a hosted observability platform.
 //! Their interface does a much better job than raw JSON at visualizing the rich data we're
 //! collecting thanks to the `tracing` crate.
 //!
@@ -53,7 +53,7 @@ fn get_order_details(order_number: u64) -> Result<OrderDetails, anyhow::Error> {
         Span::current().record("outcome", "failure");
         Err(anyhow::anyhow!("Failed to talk to the database"))
     } else {
-        let prices = vec![999, 1089, 1029];
+        let prices = [999, 1089, 1029];
         Span::current().record("outcome", "success");
         Ok(OrderDetails {
             order_number,
