@@ -31,7 +31,7 @@
 //! What does this mean for us?
 //!
 //! From a telemetry perspective, we should be careful and try to capture as much context
-//! as possible!  
+//! as possible!
 //! The `Display` representation is likely to omit details which are going to be necessary
 //! to troubleshoot.
 //! The `Debug` representation will be more verbose, but it might still miss
@@ -65,9 +65,9 @@ mod subscriber;
 /// This `telemetry_wrapper` function is meant to play such a role: it wraps the underlying
 /// computation and takes care of logging any errors that arise from it.
 #[tracing::instrument(
-    "my_task", 
+    "my_task",
     // The precise naming choice here is not important, it's likely to be determined by
-    // the conventions and constraints of your team/org. 
+    // the conventions and constraints of your team/org.
     // What matters is capturing the enough information!
     fields(error.msg = Empty, error.debug = Empty, error.source_chain = Empty)
 )]
@@ -75,7 +75,10 @@ fn telemetry_wrapper() -> Result<(), OpaqueError> {
     let outcome = fallible_operation();
     if let Err(e) = &outcome {
         // Check out the methods in the `tracing::field` module!
-        todo!()
+
+        tracing::error!(
+            error.msg = % e.to_string(), error.debug = ?e, error.source_chain = source_chain(e)
+        );
     }
     outcome
 }
@@ -186,6 +189,8 @@ mod tests {
             "The logging output is missing the expected error.debug:\n{}",
             logging_output
         );
+        println!("ERRRRRROROROORORORO {logging_output}");
+
         assert!(logging_output.contains(r#"error.source_chain="Failed to execute: `SELECT * FROM table`\nCustom { kind: ConnectionRefused, error: \"Failed to connect to 127.0.0.1:4236\" }"#),
             "The logging output is missing the expected error.source_chain:\n{}",
             logging_output
